@@ -188,24 +188,23 @@
               alert('Web payments are not supported in this browser.');
               return;
             }
-            // Generate a unique order ID
-            const orderId = generateOrderId();
-            // Create supported payment method.
+            // Get the price from the element with ID "selling_price"
             const priceamt = document.getElementById("selling_price").innerHTML;
             const price = priceamt.replace("₹", "");
             console.log(price);
+            // Supported payment methods
             const supportedInstruments = [{
               supportedMethods: ['https://tez.google.com/pay'],
               data: {
                 pa: 'bharatpe09902975124@yesbankltd', // Replace with your Merchant UPI ID
                 pn: 'Merchant Name', // Replace with your Merchant Name
-                tr: orderId, // Use generated order ID
-                url: `https://yourwebsite.com/order/${orderId}`, // URL of the order in your website
-                mc: '1234', // Your merchant category code
+                tr: '1234ABCD', // Custom transaction reference ID
+                url: 'https://yourwebsite.com/order/1234ABCD', // URL of the order on your website
+                mc: '1234', // Merchant category code
                 tn: 'Purchase in Merchant', // Transaction note
               },
             }];
-            // Create order detail data.
+            // Order details
             const details = {
               total: {
                 label: 'Total',
@@ -222,7 +221,7 @@
                 },
               }],
             };
-            // Create payment request object.
+            // Create payment request
             let request = null;
             try {
               request = new PaymentRequest(supportedInstruments, details);
@@ -236,7 +235,7 @@
             }
             var canMakePaymentPromise = checkCanMakePayment(request);
             canMakePaymentPromise.then((result) => {
-              showPaymentUI(request, result, orderId); // Pass the order ID to payment UI
+              showPaymentUI(request, result);
             }).catch((err) => {
               alert('Error calling checkCanMakePayment: ' + err);
             });
@@ -259,7 +258,7 @@
             });
           }
 
-          function showPaymentUI(request, canMakePayment, orderId) {
+          function showPaymentUI(request, canMakePayment) {
             if (!canMakePayment) {
               alert('Google Pay is not ready to pay.');
               return;
@@ -274,41 +273,37 @@
             }, 20 * 60 * 1000); /* 20 minutes */
             request.show().then(function(instrument) {
               window.clearTimeout(paymentTimeout);
-              processResponse(instrument, orderId); // Pass orderId to process response
+              processResponse(instrument); // Handle response from browser
             }).catch(function(err) {
               alert(err);
             });
           }
 
-          function processResponse(instrument, orderId) {
-            const instrumentString = JSON.stringify({
-              methodName: instrument.methodName,
-              details: instrument.details,
-              payerName: instrument.payerName,
-              payerPhone: instrument.payerPhone,
-              payerEmail: instrument.payerEmail,
-            }, undefined, 2);
+          function processResponse(instrument) {
+            // Generate a unique order ID
+            const orderId = 'ORD-' + Math.floor(Math.random() * 1000000000); // Random order ID
+            // Retrieve customer details from localStorage
             const customerDetails = getAddressFromLocalStorage();
-            // Send payment response and order ID
+            // Send payment response to Google Sheets for processing
             fetch('https://script.google.com/macros/s/AKfycbyRLjgh3xRpzSAeufoh_qRDI8h8bc2ZZ8LLGkM2az1mAyapw0XiRZAKN6grdJ68O1yg/exec', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                customerDetails: customerDetails,
-                amount: instrument.details.total.amount.value,
-                orderId: orderId, // Include order ID
-                status: 'Success'
+                Order_ID: orderId, // Send generated Order ID
+                Customer_Data: JSON.stringify(customerDetails), // Send customer details
+                Payment_method: instrument.methodName, // Send payment method
               }),
             }).then(response => response.json()).then(data => {
-              if (data.success) {
-                console.log('Data saved successfully');
+              if (data.result === 'success') {
+                console.log('Data saved successfully with row number:', data.row);
+                // Redirect to thank you page with order ID
                 setTimeout(function() {
-                  window.location.href = `thankyou.html?order_id=${orderId}`; // Redirect to thank you page with order ID
+                  window.location.href = 'thankyou.html?order_id=' + orderId;
                 }, 20000); // 20-second delay before redirect
               } else {
-                console.log('Failed to save data');
+                console.log('Failed to save data:', data.error);
               }
             }).catch(error => {
               console.error('Error:', error);
@@ -326,10 +321,6 @@
               };
             }
             return {};
-          }
-          // Function to generate unique order ID
-          function generateOrderId() {
-            return 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
           }
         </script>
         <script>
