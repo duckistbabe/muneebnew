@@ -3,76 +3,120 @@
 
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Online Shopping Site for Mobiles, Electronics, Furniture, Grocery, Lifestyle, Books &amp; More. Best Offers!
-    </title>
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="-1">
-
-    <meta name="Keywords"
-        content="Online Shopping in India,online Shopping store,Online Shopping Site,Buy Online,Shop Online,Online Shopping,Flipkart">
-    <meta name="Description"
-        content="India&#39;s biggest online store for Mobiles, Fashion (Clothes/Shoes), Electronics, Home Appliances, Books, Jewelry, Home, Furniture, Sporting goods, Beauty &amp; Personal Care, Grocery and more! Find the largest selection from all brands at the lowest prices in India. Payment options - COD, EMI, Credit card, Debit card &amp; more.">
-    <meta property="og:title" content="We are Here To Help You">
+    <title>Order Confirmation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <meta name="Keywords" content="Online Shopping, Order Confirmation, Payment Success">
+    <meta name="Description" content="Thank you for your order. We are processing your payment and order confirmation.">
+    <meta property="og:title" content="Order Confirmation">
     <meta name="theme-color" content="#2874f0" id="themeColor">
-    <meta name="viewport" content="width=device-width,minimum-scale=1,user-scalable=no">
+
     <link rel="stylesheet" href="./assets/bootstrap.min.css">
     <link rel="stylesheet" href="./assets/custom.css">
-    <link rel="icon"
-        href="https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/logo_lite-cbb357.png"
-        type="image/png">
+    <link rel="icon" href="https://static-assets-web.flixcart.com/batman-returns/batman-returns/p/images/logo_lite-cbb357.png" type="image/png">
+
+    <style>
+        body {
+            background-color: #f4f4f4;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            margin-top: 50px;
+        }
+
+        .jumbotron {
+            background-color: #fff;
+            padding: 40px 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            color: #2874f0;
+            font-size: 28px;
+        }
+
+        h3 {
+            color: #444;
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+
+        .note {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        #orderNumber {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2874f0;
+            margin-top: 20px;
+        }
+
+        .btn-group .btn {
+            font-size: 16px;
+            padding: 10px 20px;
+        }
+
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #777;
+        }
+    </style>
+
 </head>
 
-<body class="expansion-alids-init" cz-shortcut-listen="true">
-    <div id="container" style="overflow:hidden">
-        <div style="height:100%" data-reactroot="">
-            <style>
-                div {
-                    font-size: 20px;
-                    text-align: center;
-                }
-            </style>
+<body class="expansion-alids-init">
+    <div class="container">
+        <div class="row">
+            <div class="jumbotron text-center">
+                <h2>YOUR ORDER HAS BEEN RECEIVED</h2>
+                <h3>Thank you for your payment, it’s processing</h3>
 
+                <span class="note">Note: If your payment is not successful, your order will be canceled automatically!</span>
+                <span class="note">Please make sure not to close any UPI app until payment is completed.</span>
 
+                <span id="orderNumber">Order ID: <strong id="dynamicOrderId">Loading...</strong></span>
+                <p>You will receive an order confirmation email with details of your order and a link to track your process.</p>
 
-            <link rel="stylesheet" href="./assets/bootstrap.min.css"
-                integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u"
-                crossorigin="anonymous">
-            <div class="container">
-                <div class="row">
-                    <div class="jumbotron">
-                        <h2 class="text-center">YOUR ORDER HAS BEEN RECEIVED</h2>
-                        <h3 class="text-center">Thank you for your payment, it’s processing</h3>
-
-                        <span class="note"> Note: If your payment is not successful by you, then your order will be
-                            canclled automatically!</span>
-                        <span class="note"> Please make sure do not close any upi app untill payment is done!</span>
-
-                        <span id="orderNumber"></span>
-                        <p class="text-center">You will receive an order confirmation email with details of your order
-                            and a link to track your process.</p>
-                        <span>Your Order id is</span>
-                        1511030562<br>
-                        <center>
-                            <div class="btn-group" style="margin-top:50px;">
-                                <a href="/" class="btn btn-lg btn-warning">CONTINUE</a>
-                            </div>
-                        </center>
+                <center>
+                    <div class="btn-group" style="margin-top:50px;">
+                        <a href="/" class="btn btn-lg btn-warning">CONTINUE SHOPPING</a>
                     </div>
-                </div>
+                </center>
             </div>
-
-
         </div>
-        <footer class="seofooter" id="seofooter">
-        </footer>
-        <script defer="" src="./assets/jquery.min.js"></script>
-        <script defer="" src="./assets/bootstrap.min.js"></script>
-        <script defer="" src="./assets/relativeTime.js"></script>
-        <script defer="" src="./assets/days.min.js"></script>
-        <script defer="" src="./assets/custom.js"></script>
-        <script defer="" src="./assets/manage_index.js"></script>
-
     </div>
+
+    <footer>
+        © 2024 Your Website. All Rights Reserved.
+    </footer>
+
+    <script defer src="./assets/jquery.min.js"></script>
+    <script defer src="./assets/bootstrap.min.js"></script>
+
+    <script>
+        // Function to fetch order_id from URL parameters
+        function getOrderIDFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('order_id');
+        }
+
+        // Update the Order ID dynamically
+        window.onload = function () {
+            const orderId = getOrderIDFromUrl();
+            if (orderId) {
+                document.getElementById("dynamicOrderId").textContent = orderId;
+            } else {
+                document.getElementById("dynamicOrderId").textContent = 'Not Available';
+            }
+        };
+    </script>
+
 </body>
 
 </html>
