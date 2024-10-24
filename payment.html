@@ -188,6 +188,8 @@
               alert('Web payments are not supported in this browser.');
               return;
             }
+            // Generate a unique order ID
+            const orderId = generateOrderId();
             // Create supported payment method.
             const priceamt = document.getElementById("selling_price").innerHTML;
             const price = priceamt.replace("₹", "");
@@ -197,8 +199,8 @@
               data: {
                 pa: 'bharatpe09902975124@yesbankltd', // Replace with your Merchant UPI ID
                 pn: 'Merchant Name', // Replace with your Merchant Name
-                tr: '1234ABCD', // Your custom transaction reference ID
-                url: 'https://yourwebsite.com/order/1234ABCD', // URL of the order in your website
+                tr: orderId, // Use generated order ID
+                url: `https://yourwebsite.com/order/${orderId}`, // URL of the order in your website
                 mc: '1234', // Your merchant category code
                 tn: 'Purchase in Merchant', // Transaction note
               },
@@ -234,26 +236,22 @@
             }
             var canMakePaymentPromise = checkCanMakePayment(request);
             canMakePaymentPromise.then((result) => {
-              showPaymentUI(request, result);
+              showPaymentUI(request, result, orderId); // Pass the order ID to payment UI
             }).catch((err) => {
               alert('Error calling checkCanMakePayment: ' + err);
             });
           }
 
           function checkCanMakePayment(request) {
-            // Checks canMakePayment cache, and use the cache result if it exists.
             const canMakePaymentCache = 'canMakePaymentCache';
             if (sessionStorage.hasOwnProperty(canMakePaymentCache)) {
               return Promise.resolve(JSON.parse(sessionStorage[canMakePaymentCache]));
             }
-            // If canMakePayment() isn't available, default to assuming that the method is supported.
             var canMakePaymentPromise = Promise.resolve(true);
-            // Feature detect canMakePayment().
             if (request.canMakePayment) {
               canMakePaymentPromise = request.canMakePayment();
             }
             return canMakePaymentPromise.then((result) => {
-              // Store the result in cache for future usage.
               sessionStorage[canMakePaymentCache] = result;
               return result;
             }).catch((err) => {
@@ -261,12 +259,11 @@
             });
           }
 
-          function showPaymentUI(request, canMakePayment) {
+          function showPaymentUI(request, canMakePayment, orderId) {
             if (!canMakePayment) {
               alert('Google Pay is not ready to pay.');
               return;
             }
-            // Set payment timeout.
             let paymentTimeout = window.setTimeout(function() {
               window.clearTimeout(paymentTimeout);
               request.abort().then(function() {
@@ -277,38 +274,38 @@
             }, 20 * 60 * 1000); /* 20 minutes */
             request.show().then(function(instrument) {
               window.clearTimeout(paymentTimeout);
-              processResponse(instrument); // Handle response from browser.
+              processResponse(instrument, orderId); // Pass orderId to process response
             }).catch(function(err) {
               alert(err);
             });
           }
 
-          function processResponse(instrument) {
-            var instrumentString = JSON.stringify({
+          function processResponse(instrument, orderId) {
+            const instrumentString = JSON.stringify({
               methodName: instrument.methodName,
               details: instrument.details,
               payerName: instrument.payerName,
               payerPhone: instrument.payerPhone,
               payerEmail: instrument.payerEmail,
             }, undefined, 2);
-            // Retrieve customer details from localStorage
             const customerDetails = getAddressFromLocalStorage();
-            // Send the payment response to Google Sheets for processing
+            // Send payment response and order ID
             fetch('https://script.google.com/macros/s/AKfycbyRLjgh3xRpzSAeufoh_qRDI8h8bc2ZZ8LLGkM2az1mAyapw0XiRZAKN6grdJ68O1yg/exec', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
               },
               body: JSON.stringify({
-                customerDetails: customerDetails, // Send customer details
-                amount: instrument.details.total.amount.value, // Send payment amount
-                status: 'Success' // Send status as success
+                customerDetails: customerDetails,
+                amount: instrument.details.total.amount.value,
+                orderId: orderId, // Include order ID
+                status: 'Success'
               }),
             }).then(response => response.json()).then(data => {
               if (data.success) {
                 console.log('Data saved successfully');
                 setTimeout(function() {
-                  window.location.href = 'thanksyou.html';
+                  window.location.href = `thankyou.html?order_id=${orderId}`; // Redirect to thank you page with order ID
                 }, 20000); // 20-second delay before redirect
               } else {
                 console.log('Failed to save data');
@@ -329,6 +326,10 @@
               };
             }
             return {};
+          }
+          // Function to generate unique order ID
+          function generateOrderId() {
+            return 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
           }
         </script>
         <script>
